@@ -4,13 +4,13 @@ LABEL name="hephy-go-dev" \
       maintainer="Team Hephy <team@teamhephy.com>"
 
 ENV DOCKER_VERSION=20.10.2 \
-    ETCDCTL_VERSION=v3.1.8 \
-    GO_VERSION=1.16.6 \
-    GOLANGCI_LINT_VERSION=v1.41.1 \
-    GOSS_VERSION=v0.3.16 \
+    ETCDCTL_VERSION=v3.5.9 \
+    GO_VERSION=1.21.3 \
+    GOLANGCI_LINT_VERSION=v1.55.1 \
+    GOSS_VERSION=v0.4.2 \
     HELM_VERSION=3.6.2 \
     KUBECTL_VERSION=v1.21.3 \
-    PROTOBUF_VERSION=3.7.0 \
+    PROTOBUF_VERSION=24.3 \
     SHELLCHECK_VERSION=v0.7.2 \
     SHFMT_VERSION=3.3.0 \
     UPX_VERSION=3.96 \
@@ -57,7 +57,8 @@ RUN \
     wget \
     yq \
     zip \
-  && curl -L https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar -C /usr/local -xz \
+  && curl -O -J -L https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz \
+  && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
   && curl -sSL -o /tmp/protoc.zip https://github.com/google/protobuf/releases/download/v${PROTOBUF_VERSION}/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip \
   && unzip /tmp/protoc.zip 'bin/protoc' -d /usr/local \
   && rm /tmp/protoc.zip \
@@ -76,18 +77,35 @@ RUN \
   && curl -L https://github.com/coreos/etcd/releases/download/${ETCDCTL_VERSION}/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-${ETCDCTL_VERSION}.tar.gz \
   && tar -C /tmp -xvzf /tmp/etcd-${ETCDCTL_VERSION}.tar.gz --strip-components=1 etcd-${ETCDCTL_VERSION}-linux-amd64/etcdctl \
   && mv /tmp/etcdctl /usr/local/bin/etcdctl \
-  && rm /tmp/etcd-${ETCDCTL_VERSION}.tar.gz \
-  && go get -u -v \
-    github.com/AlekSi/gocov-xml \
-    github.com/axw/gocov/gocov \
-    github.com/go-delve/delve/cmd/dlv \
-    github.com/dgrijalva/jwt-go/cmd/jwt \
-    github.com/golang/protobuf/protoc-gen-go \
-    github.com/haya14busa/goverage \
-    github.com/jteeuwen/go-bindata/... \
-    github.com/mitchellh/gox \
-    github.com/onsi/ginkgo/ginkgo \
-  && curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b ${GOPATH}/bin ${GOLANGCI_LINT_VERSION} \
+  && rm /tmp/etcd-${ETCDCTL_VERSION}.tar.gz 
+RUN \
+    go install -v \
+    github.com/axw/gocov/gocov@latest
+RUN go install -v \
+    github.com/AlekSi/gocov-xml@latest 
+RUN \
+    go install -v \
+    github.com/go-delve/delve/cmd/dlv@latest
+RUN \
+    go install -v \
+    github.com/dgrijalva/jwt-go/cmd/jwt@latest
+RUN \
+    go install -v \
+    github.com/golang/protobuf/protoc-gen-go@latest
+RUN \
+    go install -v \
+    github.com/haya14busa/goverage@latest
+RUN \
+    go install -v \
+    github.com/jteeuwen/go-bindata/...@latest
+RUN \
+    go install -v \
+    github.com/mitchellh/gox@latest
+RUN \
+    go install -v \
+    github.com/onsi/ginkgo/ginkgo@latest
+RUN \
+  curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b ${GOPATH}/bin ${GOLANGCI_LINT_VERSION} \
   && curl -sSL https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_VERSION}/shellcheck-${SHELLCHECK_VERSION}.linux.x86_64.tar.xz \
     | tar -vxJ -C /usr/local/bin --strip=1 \
   && curl -o /usr/local/bin/shfmt -sSL https://github.com/mvdan/sh/releases/download/v{SHFMT_VERSION}/shfmt_v{SHFMT_VERSION}_linux_amd64 \
