@@ -8,6 +8,9 @@ ENV DOCKER_VERSION=20.10.2 \
     GO_VERSION=1.21.3 \
     GOLANGCI_LINT_VERSION=v1.55.1 \
     GOSS_VERSION=v0.4.2 \
+    GOOS=linux \
+    GOARCH=arm64 \
+    CC=aarch64-linux-gnu-gcc \
     HELM_VERSION=3.6.2 \
     KUBECTL_VERSION=v1.21.3 \
     PROTOBUF_VERSION=24.3 \
@@ -24,6 +27,7 @@ RUN \
   export DEBIAN_FRONTEND=noninteractive && \
   apt-get update && \
   apt-get install -y software-properties-common && \
+  apt-get install -y gcc-aarch64-linux-gnu && \
   add-apt-repository ppa:rmescandon/yq && \
   apt-get update && \
   apt-get upgrade -y --no-install-recommends && \
